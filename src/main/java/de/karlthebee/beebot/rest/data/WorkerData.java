@@ -1,8 +1,11 @@
 package de.karlthebee.beebot.rest.data;
 
+import de.karlthebee.beebot.dyn.WebLog;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -12,5 +15,7 @@ public class WorkerData {
     private String moduleId;
     private String botId;
     private String name;
-    private String description="empty";
+    private String description;
+
+    private List<WebLog.LogEntry> logs;
 }

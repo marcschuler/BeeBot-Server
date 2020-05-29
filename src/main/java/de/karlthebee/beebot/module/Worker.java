@@ -37,7 +37,7 @@ public abstract class Worker<T> {
      */
     public abstract Module getModule();
 
-    public void setBeeBot(BeeBot bot) {
+    public void setBot(BeeBot bot) {
         if (this.bot != null)
             throw new IllegalStateException("BeeBot reference already set. No overwrite allowed");
         this.bot = bot;

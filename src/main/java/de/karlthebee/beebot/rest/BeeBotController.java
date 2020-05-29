@@ -1,26 +1,18 @@
 package de.karlthebee.beebot.rest;
 
-import com.github.theholywaffle.teamspeak3.TS3Api;
 import de.karlthebee.beebot.Registry;
-import de.karlthebee.beebot.Util;
 import de.karlthebee.beebot.data.ServerState;
 import de.karlthebee.beebot.data.TeamspeakConfig;
 import de.karlthebee.beebot.dyn.WebLog;
 import de.karlthebee.beebot.repository.ConfigRepository;
-import de.karlthebee.beebot.rest.data.ChannelReference;
-import de.karlthebee.beebot.rest.data.ClientReference;
 import de.karlthebee.beebot.rest.data.Violation;
 import de.karlthebee.beebot.ts3.BeeBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,7 +68,7 @@ public class BeeBotController extends RestUtil {
     }
 
     @GetMapping("{bid}/logs")
-    public List<WebLog> logs(@PathVariable("bid") String bid) {
-        return botById(bid).getWebLogs();
+    public List<WebLog.LogEntry> logs(@PathVariable("bid") String bid) {
+        return botById(bid).getWebLog().getLogEntries();
     }
 }

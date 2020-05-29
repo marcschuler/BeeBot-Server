@@ -70,7 +70,7 @@ public class BeeBot implements TS3EventInterface {
      * Inits all modules
      */
     private void initModule() {
-       webLog.info("Starting modules");
+        webLog.info("Starting modules");
         log.info("Init modules...");
 
         for (var config : workerConfigRepository.findAll()) {
@@ -98,56 +98,68 @@ public class BeeBot implements TS3EventInterface {
      * Inits the API
      */
     private void initApi() {
-        while (!isOnline() && !closed) {    //connect until is connected
-            try {
-                if (config == null)
-                    return;
-                log.info("Starting BeeBot " + getId() + " at " + getConfig().getHost());
-                final TS3Config config = new TS3Config();
-                config.setHost(getConfig().getHost());
-                config.setCommandTimeout(4000);
-                config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
-                config.setConnectionHandler(new ConnectionHandler() {
-                    @Override
-                    public void onConnect(TS3Query ts3Query) {
-                        log.info("Reconnect: LOGIN");
-                    }
+        try {
+            if (config == null)
+                return;
+            log.info("Starting BeeBot " + getId() + " at " + getConfig().getHost());
+            final TS3Config config = new TS3Config();
+            config.setHost(getConfig().getHost());
+            config.setCommandTimeout(4000);
+            config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
+            config.setConnectionHandler(new ConnectionHandler() {
+                @Override
+                public void onConnect(TS3Query ts3Query) {
+                    log.info("Reconnected to server");
+                    query = ts3Query;
+                    findApi();
+                }
 
-                    @Override
-                    public void onDisconnect(TS3Query ts3Query) {
-                        log.info("Disconnected from server");
-                        webLog.warning("Disconnected from teamspeak server");
-                    }
-                });
+                @Override
+                public void onDisconnect(TS3Query ts3Query) {
+                    log.info("Disconnected from server");
+                    webLog.warning("Disconnected from teamspeak server");
+                }
+            });
 
-                query = new TS3Query(config);
-                log.info("Connecting to server...");
-                webLog.info("Connecting to Teamspeak Server");
-                query.connect();
-                var api = query.getApi();
-                log.info("Login... " + getConfig().getUsername() + "@" + getConfig().getPassword());
-              webLog.info("Loggin in with username '" + getConfig().getUsername() + "' and password");
-                api.login(getConfig().getUsername(), getConfig().getPassword());
-                api.selectVirtualServerById(getConfig().getVirtualServer());
-                api.setNickname(getConfig().getNickname());
-
-                api.registerAllEvents();
-                api.addTS3Listeners(this);
-                log.info("Connected");
-               webLog.info("Connected");
-                this.api = api;
-                getWorkers().forEach(m -> m.onConnect(getApi()));
-            } catch (Exception e) {
-                log.error("Error connecting: " + e.getMessage());
-                webLog.error("Error connecting: " + e.getMessage());
-            }
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            query = new TS3Query(config);
+            log.info("Connecting to server...");
+            webLog.info("Connecting to Teamspeak Server");
+            query.connect();
+        } catch (Exception e) {
+            log.error("Error connecting: " + e.getMessage());
+            webLog.error("Error connecting: " + e.getMessage());
         }
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
+    private void findApi() {
+        try {
+            var api = query.getApi();
+            log.info("Login... " + getConfig().getUsername() + "@" + getConfig().getPassword());
+            webLog.info("Loggin in with username '" + getConfig().getUsername() + "' and password");
+            api.login(getConfig().getUsername(), getConfig().getPassword());
+            api.selectVirtualServerById(getConfig().getVirtualServer());
+
+            try {
+                api.setNickname(getConfig().getNickname());
+            } catch (Exception e) {
+                webLog.warning("Could not set nickname (this is an common error");
+                log.warn("Could not set nickname", e);
+            }
+            api.registerAllEvents();
+            api.addTS3Listeners(this);
+            log.info("Connected");
+            webLog.info("Connected");
+            this.api = api;
+            getWorkers().forEach(m -> m.onConnect(getApi()));
+        } catch (Exception e) {
+            log.error("Error connecting: " + e.getMessage());
+            webLog.error("Error connecting: " + e.getMessage());
+        }
     }
 
     /**
@@ -226,7 +238,7 @@ public class BeeBot implements TS3EventInterface {
 
         var worker = (Worker<T>) module.getWorker().newInstance();
         worker.setBot(this);
-        worker.setStatus(true, "Started");
+        worker.getWebLog().info("Started");
         worker.setWorkerConfig(workerConfig);
         beanFactory.autowireBean(worker);   //autowire
 

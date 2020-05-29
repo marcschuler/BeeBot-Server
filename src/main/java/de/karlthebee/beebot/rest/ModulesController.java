@@ -44,7 +44,7 @@ public class ModulesController extends RestUtil {
         requireToken();
         var beebot = botById(bid);
         return beebot.getWorkers().stream()
-                .map(w -> new WorkerData(w.getId(), w.getModule().getShortName(),beebot.getId(), w.getModule().getName(), w.getStatus().getMessage()))
+                .map(w -> new WorkerData(w.getId(), w.getModule().getShortName(),beebot.getId(),  w.getModule().getName(),"",w.getWebLog().getLogEntries()))
                 .collect(Collectors.toList());
     }
 
@@ -54,7 +54,7 @@ public class ModulesController extends RestUtil {
         var beebot = botById(bid);
         return beebot.getWorkers().stream()
                 .filter(w -> w.getId().equals(mid))
-                .map(w -> new WorkerData(w.getId(), w.getModule().getShortName(),beebot.getId(), w.getModule().getName(), w.getStatus().getMessage()))
+                .map(w -> new WorkerData(w.getId(), w.getModule().getShortName(),beebot.getId(), w.getModule().getName(),"",w.getWebLog().getLogEntries()))
                 .findFirst()
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find worker"));
     }
