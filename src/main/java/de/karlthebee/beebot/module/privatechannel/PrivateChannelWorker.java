@@ -3,6 +3,7 @@ package de.karlthebee.beebot.module.privatechannel;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.api.ChannelProperty;
 import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
+import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 import de.karlthebee.beebot.dyn.DynReplacer;
 import de.karlthebee.beebot.module.Module;
@@ -84,7 +85,14 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
 
         try {
             ServerQueryInfo whoAmI = getBot().getApi().whoAmI();
-            int newChannel = getBot().getApi().createChannel(name, properties);
+            int newChannel = 0;
+            try {
+                newChannel = getBot().getApi().createChannel(name, properties);
+            } catch (TS3CommandFailedException e) {
+                log.warn("Could not create channel", e);
+                webLog.warning("Could not create channel. Doesn't BeeBot have permission or does the channel already exist? " + e.getMessage());
+                return;
+            }
             getBot().getApi().moveClient(clientId, newChannel);
 
             //Move with non permanent channel
