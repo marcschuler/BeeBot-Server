@@ -9,6 +9,9 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 @Configuration
 @Slf4j
 public class Application implements ApplicationRunner {
@@ -27,5 +30,11 @@ public class Application implements ApplicationRunner {
                 .map(BeeBot::new)
                 .peek(b -> beanFactory.autowireBean(b)) //autowire all beans
                 .forEach(BeeBot::init);
+
+        //CLose bots on exit
+        Runtime.getRuntime().addShutdownHook(new Thread(()->{
+            var bots = new ArrayList<>(Registry.getInstance().getBots()); // Copy list to avoid concurrent issues
+            bots.forEach(BeeBot::close);
+        }));
     }
 }

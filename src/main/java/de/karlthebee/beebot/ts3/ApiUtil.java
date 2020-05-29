@@ -1,6 +1,7 @@
 package de.karlthebee.beebot.ts3;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
+import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
@@ -10,34 +11,44 @@ import java.util.Optional;
 public class ApiUtil {
 
     /**
-     * @param api the api instance
+     * @param api      the api instance
      * @param clientId the client id
      * @return a client based on the id
      */
     public static Optional<Client> getClientById(TS3Api api, int clientId) {
-        return api.getClients().stream().filter(c -> c.getId() == clientId).findFirst();
+        try {
+            return api.getClients().stream().filter(c -> c.getId() == clientId).findFirst();
+        } catch (TS3CommandFailedException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
 
     /**
-     *
-     * @param api the api instance
+     * @param api       the api instance
      * @param channelId the channel id
      * @return the channel based on the id
      */
     public static Optional<Channel> getChannelById(TS3Api api, int channelId) {
-        return api.getChannels().stream().filter(c -> c.getId() == channelId).findFirst();
+        try {
+            return api.getChannels().stream().filter(c -> c.getId() == channelId).findFirst();
+        } catch (TS3CommandFailedException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 
 
     /**
      * Pokes a client securely.
      * Splits the text based on the 100-char limit and newline-limit of teamspeak
-     * @param api the api instance
+     *
+     * @param api      the api instance
      * @param clientId the client id
-     * @param text the text
+     * @param text     the text
      */
-    public static void poke(TS3Api api, int clientId, String text) {
+    public static void poke(TS3Api api, int clientId, String text) throws TS3CommandFailedException {
         String[] pokes = text.split("\n");
         for (var poke : pokes) {
             var subpokes = split(poke);
@@ -49,6 +60,7 @@ public class ApiUtil {
 
     /**
      * Splits a string in 100byte pieces
+     *
      * @param s
      * @return
      */
@@ -65,7 +77,8 @@ public class ApiUtil {
 
     /**
      * Get the level of a channel. 0 for root, 1 for below...
-     * @param channel the channel
+     *
+     * @param channel  the channel
      * @param channels all channels
      * @return the level of the channel. >=0
      */
@@ -85,12 +98,13 @@ public class ApiUtil {
     /**
      * Generates a ts3-client parsable user link
      * Example: [URL=client://43/5Wwluvu55Nx51y4xjzsTg500ic0=~Bolkos]Bolkos[/URL]
-     * @param id the user id
-     * @param uid the user uid
+     *
+     * @param id   the user id
+     * @param uid  the user uid
      * @param name the name (not nickname, just the visible name)
      * @return a string for a teamspeak message or description
      */
-    public static String userReference(int id, String uid, String name){
+    public static String userReference(int id, String uid, String name) {
         return "[URL=client://" + id + "/" + uid + "~" + name + "]" + name + "[/URL]";
     }
 

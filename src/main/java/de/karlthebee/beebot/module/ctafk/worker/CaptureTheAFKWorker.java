@@ -4,23 +4,19 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.api.ChannelProperty;
 import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
-import de.karlthebee.beebot.Registry;
 import de.karlthebee.beebot.module.ctafk.CaptureTheAFK;
 import de.karlthebee.beebot.module.ctafk.CaptureTheAFKConfig;
 import de.karlthebee.beebot.module.ctafk.data.CaptureTheAFKData;
 import de.karlthebee.beebot.module.ctafk.data.CaptureTheAFKDataRepository;
 import de.karlthebee.beebot.module.ctafk.data.CaptureTheAFKDay;
-import de.karlthebee.beebot.module.modules.Worker;
-import de.karlthebee.beebot.module.modules.Module;
+import de.karlthebee.beebot.module.Worker;
+import de.karlthebee.beebot.module.Module;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 

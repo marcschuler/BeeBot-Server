@@ -4,6 +4,7 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
+import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import de.karlthebee.beebot.Util;
 import de.karlthebee.beebot.Registry;
@@ -11,15 +12,14 @@ import de.karlthebee.beebot.data.ServerState;
 import de.karlthebee.beebot.data.TeamspeakConfig;
 import de.karlthebee.beebot.data.WorkerConfig;
 import de.karlthebee.beebot.dyn.WebLog;
-import de.karlthebee.beebot.module.modules.Module;
-import de.karlthebee.beebot.module.modules.Worker;
+import de.karlthebee.beebot.module.Module;
+import de.karlthebee.beebot.module.Worker;
 import de.karlthebee.beebot.repository.WorkerConfigRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class BeeBot implements TS3EventInterface {
     private TS3Api api;
 
     private final List<Worker<?>> workers = new ArrayList<>();
-    private final List<WebLog> webLogs = new ArrayList<>();
+    private final WebLog webLog = new WebLog();
 
     private boolean closed = false;
 
@@ -56,7 +56,7 @@ public class BeeBot implements TS3EventInterface {
     public void init() {
         Registry.getInstance().getBots().add(this);
         System.out.println(config.toString());
-        webLogs.add(WebLog.of("Starting BeeBot"));
+        webLog.info("Starting BeeBot");
         initModule();
         Registry.getInstance().getBotPool().submit(this::initApi);
     }
@@ -70,7 +70,7 @@ public class BeeBot implements TS3EventInterface {
      * Inits all modules
      */
     private void initModule() {
-        webLogs.add(WebLog.of("Starting modules"));
+       webLog.info("Starting modules");
         log.info("Init modules...");
 
         for (var config : workerConfigRepository.findAll()) {
@@ -78,7 +78,7 @@ public class BeeBot implements TS3EventInterface {
                 try {
                     addWorker(config);
                 } catch (IllegalAccessException | InstantiationException e) {
-                    webLogs.add(WebLog.error("Could not load module " + config.getModuleId()));
+                    webLog.error("Could not load module " + config.getModuleId());
                     log.error("Could not load module: " + config.toString(), e);
                 }
             }
@@ -107,14 +107,26 @@ public class BeeBot implements TS3EventInterface {
                 config.setHost(getConfig().getHost());
                 config.setCommandTimeout(4000);
                 config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
+                config.setConnectionHandler(new ConnectionHandler() {
+                    @Override
+                    public void onConnect(TS3Query ts3Query) {
+                        log.info("Reconnect: LOGIN");
+                    }
+
+                    @Override
+                    public void onDisconnect(TS3Query ts3Query) {
+                        log.info("Disconnected from server");
+                        webLog.warning("Disconnected from teamspeak server");
+                    }
+                });
 
                 query = new TS3Query(config);
                 log.info("Connecting to server...");
-                webLogs.add(WebLog.of("Connecting to Server"));
+                webLog.info("Connecting to Teamspeak Server");
                 query.connect();
                 var api = query.getApi();
                 log.info("Login... " + getConfig().getUsername() + "@" + getConfig().getPassword());
-                webLogs.add(WebLog.of("Login to server"));
+              webLog.info("Loggin in with username '" + getConfig().getUsername() + "' and password");
                 api.login(getConfig().getUsername(), getConfig().getPassword());
                 api.selectVirtualServerById(getConfig().getVirtualServer());
                 api.setNickname(getConfig().getNickname());
@@ -122,12 +134,12 @@ public class BeeBot implements TS3EventInterface {
                 api.registerAllEvents();
                 api.addTS3Listeners(this);
                 log.info("Connected");
-                webLogs.add(WebLog.of("Connected to server"));
+               webLog.info("Connected");
                 this.api = api;
                 getWorkers().forEach(m -> m.onConnect(getApi()));
             } catch (Exception e) {
                 log.error("Error connecting: " + e.getMessage());
-                webLogs.add(WebLog.error("Error connecting: " + e.getMessage()));
+                webLog.error("Error connecting: " + e.getMessage());
             }
             try {
                 Thread.sleep(10000);
@@ -174,6 +186,9 @@ public class BeeBot implements TS3EventInterface {
         return query != null && api != null && query.isConnected();
     }
 
+    /**
+     * @return the api as optional
+     */
     public Optional<TS3Api> withApi() {
         return Optional.ofNullable(getApi());
     }

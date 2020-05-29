@@ -1,6 +1,10 @@
-package de.karlthebee.beebot.module.modules;
+package de.karlthebee.beebot.module;
+
+import de.karlthebee.beebot.dyn.WebLog;
+import lombok.Getter;
 
 public abstract class Module {
+
 
     /**
      * @return The class containing the configuration data

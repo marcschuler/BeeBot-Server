@@ -1,8 +1,9 @@
-package de.karlthebee.beebot.module.modules;
+package de.karlthebee.beebot.module;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import de.karlthebee.beebot.Util;
 import de.karlthebee.beebot.data.WorkerConfig;
+import de.karlthebee.beebot.dyn.WebLog;
 import de.karlthebee.beebot.repository.WorkerConfigRepository;
 import de.karlthebee.beebot.ts3.BeeBot;
 import lombok.Getter;
@@ -11,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 @Slf4j
 public abstract class Worker<T> {
@@ -25,8 +25,11 @@ public abstract class Worker<T> {
     @Setter
     private Status status;
     @Getter
-    @Setter
     private BeeBot bot;
+
+
+    @Getter
+    protected final WebLog webLog = new WebLog();
 
     /**
      * @return the module. For convinient causes
@@ -34,10 +37,16 @@ public abstract class Worker<T> {
      */
     public abstract Module getModule();
 
+    public void setBeeBot(BeeBot bot) {
+        if (this.bot != null)
+            throw new IllegalStateException("BeeBot reference already set. No overwrite allowed");
+        this.bot = bot;
+    }
+
     public void setWorkerConfig(WorkerConfig<T> workerConfig) throws IllegalStateException, NullPointerException {
         if (this.workerConfig != null)
             throw new IllegalStateException("Worker is already initialsed");
-        if (workerConfig==null)
+        if (workerConfig == null)
             throw new NullPointerException("Worker config is null");
         this.workerConfig = workerConfig;
     }
@@ -65,12 +74,12 @@ public abstract class Worker<T> {
         if (errors.size() > 0) {
             log.error("Could not set config");
             errors.forEach(e -> log.error(e.getRootBean() + ": " + e.getMessage()));
-            setStatus(false, "Loaded wrong config");
+            webLog.error("Configuration is wrong");
             throw new IllegalStateException("Config is invalid");
         }
         this.workerConfig.setData(config);
         workerConfigRepository.save(getWorkerConfig());
-        setStatus(true, "Loaded config");
+        webLog.info("Configuration loaded");
         log.info("Updated config of worker " + getId());
     }
 
@@ -87,18 +96,18 @@ public abstract class Worker<T> {
      */
     abstract public void onConnect(TS3Api api);
 
-
-    public void setStatus(boolean success, String text) {
-        setStatus(new Status(success, text));
-    }
-
     /**
      * Removes the worker
      */
     public void remove() {
+        log.info("Deleting module " + getId() + "@" + getModule().getShortName());
         getBot().getWorkers().remove(this);
-        save();
-        stop();
+        try {
+            save();
+            stop();
+        } catch (Exception e) {
+            log.error("Could not stop bot. This is an inconsistence state", e);
+        }
         workerConfigRepository.delete(getWorkerConfig());
     }
 

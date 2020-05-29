@@ -2,12 +2,10 @@ package de.karlthebee.beebot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import de.karlthebee.beebot.module.modules.Worker;
+import de.karlthebee.beebot.module.Worker;
 import de.karlthebee.beebot.ts3.BeeBot;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;

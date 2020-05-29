@@ -1,8 +1,8 @@
 package de.karlthebee.beebot.module.ctafk;
 
 import de.karlthebee.beebot.module.ctafk.worker.CaptureTheAFKWorker;
-import de.karlthebee.beebot.module.modules.Module;
-import de.karlthebee.beebot.module.modules.Worker;
+import de.karlthebee.beebot.module.Module;
+import de.karlthebee.beebot.module.Worker;
 
 public class CaptureTheAFK extends Module {
     @Override

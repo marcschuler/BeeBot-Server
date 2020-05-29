@@ -1,7 +1,7 @@
 package de.karlthebee.beebot.module.support;
 
-import de.karlthebee.beebot.module.modules.Module;
-import de.karlthebee.beebot.module.modules.Worker;
+import de.karlthebee.beebot.module.Module;
+import de.karlthebee.beebot.module.Worker;
 
 public class SupportModule extends Module {
     @Override

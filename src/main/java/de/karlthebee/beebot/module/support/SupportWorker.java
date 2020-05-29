@@ -5,11 +5,12 @@ import com.github.theholywaffle.teamspeak3.api.ChannelProperty;
 import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientLeaveEvent;
 import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
+import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import de.karlthebee.beebot.Util;
 import de.karlthebee.beebot.dyn.DynReplacer;
-import de.karlthebee.beebot.module.modules.Module;
-import de.karlthebee.beebot.module.modules.Worker;
+import de.karlthebee.beebot.module.Module;
+import de.karlthebee.beebot.module.Worker;
 import de.karlthebee.beebot.ts3.ApiUtil;
 import de.karlthebee.beebot.ts3.TS3EventInterface;
 import lombok.extern.slf4j.Slf4j;
@@ -68,10 +69,10 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
     /**
      * Updates the channel description
      */
-    public void updateChannel(){
-        var channelOpt = ApiUtil.getChannelById(getBot().getApi(),getConfig().getChannelId());
-        if (channelOpt.isEmpty()){
-            setStatus(false,"Channel does not exist");
+    public void updateChannel() {
+        var channelOpt = ApiUtil.getChannelById(getBot().getApi(), getConfig().getChannelId());
+        if (channelOpt.isEmpty()) {
+            webLog.error("Support channel does not exist!");
             return;
         }
         var channel = channelOpt.get();
@@ -81,9 +82,9 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
         description = new StringBuilder(DynReplacer.replaceAll(description.toString(), channel, null));
 
         // Add supporter to description
-        if (getConfig().isShowSupporterInDescription()){
+        if (getConfig().isShowSupporterInDescription()) {
             description.append("\n\n");
-            for(var supporter: supporters){
+            for (var supporter : supporters) {
                 description.append(ApiUtil.userReference(supporter.getId(), supporter.getUniqueIdentifier(), supporter.getNickname()));
                 description.append("\n");
             }
@@ -101,7 +102,8 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
 
     /**
      * Notifies the client and the supporter when a client wants support
-     * @param clientId the client
+     *
+     * @param clientId  the client
      * @param channelId the channel of the client
      */
     public void notifyUser(int clientId, int channelId) {
@@ -116,7 +118,10 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
 
         //Prepare variables
         var client = clientOpt.get();
-        var channel = ApiUtil.getChannelById(getBot().getApi(), channelId).orElseThrow();
+        var channel = ApiUtil.getChannelById(getBot().getApi(), channelId).orElseThrow(() -> {
+            webLog.error("Could not find support channel by id '" + channelId + "'");
+            throw new IllegalStateException("Could not find channel");
+        });
 
         //Ignore supporters joining the support channel
         if (Util.contains(client.getServerGroups(), getConfig().getSupportGroup()))
@@ -128,24 +133,32 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
         customerMessage = DynReplacer.replaceAll(customerMessage, channel, client);
         supporterMessage = DynReplacer.replaceAll(supporterMessage, channel, client);
 
-        // Find and send message to all supporters
-        var supporters = getSupporters();
-        for (var supporter : supporters) {
-            ApiUtil.poke(getBot().getApi(), supporter.getId(), supporterMessage);
+        try {
+            // Find and send message to all supporters
+            var supporters = getSupporters();
+            for (var supporter : supporters) {
+                ApiUtil.poke(getBot().getApi(), supporter.getId(), supporterMessage);
+            }
+        } catch (TS3CommandFailedException e) {
+            log.warn("Could not poke admins", e);
+            webLog.error("Could not poke admins: " + e.getMessage());
         }
 
-        //Send message to user
-        ApiUtil.poke(getBot().getApi(), clientId, customerMessage);
-
-        setStatus(true, "Send message to " + client.getNickname());
+        try {
+            //Send message to user
+            ApiUtil.poke(getBot().getApi(), clientId, customerMessage);
+        } catch (TS3CommandFailedException e) {
+            log.warn("Could not poke user", e);
+            webLog.error("Could not poke user '" + client.getNickname() + "'");
+        }
+        webLog.info("User '" + client.getNickname() + "' wants help");
     }
 
     /**
-     *
      * @return a list of all online clients with support group
      */
-    private List<Client> getSupporters(){
-       return getBot().getApi().getClients().stream()
+    private List<Client> getSupporters() {
+        return getBot().getApi().getClients().stream()
                 .filter(c -> Util.contains(c.getServerGroups(), getConfig().getSupportGroup()))
                 .collect(Collectors.toList());
     }

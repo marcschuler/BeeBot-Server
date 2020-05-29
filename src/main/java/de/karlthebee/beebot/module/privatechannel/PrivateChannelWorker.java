@@ -5,8 +5,8 @@ import com.github.theholywaffle.teamspeak3.api.ChannelProperty;
 import com.github.theholywaffle.teamspeak3.api.event.ClientMovedEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ServerQueryInfo;
 import de.karlthebee.beebot.dyn.DynReplacer;
-import de.karlthebee.beebot.module.modules.Module;
-import de.karlthebee.beebot.module.modules.Worker;
+import de.karlthebee.beebot.module.Module;
+import de.karlthebee.beebot.module.Worker;
 import de.karlthebee.beebot.ts3.ApiUtil;
 import de.karlthebee.beebot.ts3.TS3EventInterface;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,8 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
 
     @Override
     public void start() {
-        getBot().getApi().getClients().forEach(client -> createChannel(client.getId(), client.getChannelId()));
+        if (getBot().isOnline())
+            getBot().getApi().getClients().forEach(client -> createChannel(client.getId(), client.getChannelId()));
     }
 
     @Override
@@ -61,12 +62,13 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
         }
         var client = clientOpt.get();
         log.info("Creating private channel for {}", client.getNickname());
+        webLog.info("Creating private channel for '" + client.getNickname() + "'");
 
         var name = getConfig().getChannelName();
         var description = getConfig().getChannelDescription();
 
         name = DynReplacer.replaceAll(name, null, client);
-        description = DynReplacer.replaceAll(description,null,client);
+        description = DynReplacer.replaceAll(description, null, client);
 
         final Map<ChannelProperty, String> properties = new HashMap<>();
         properties.put(ChannelProperty.CPID, String.valueOf(getConfig().getParenChannel()));
@@ -86,13 +88,13 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
             getBot().getApi().moveClient(clientId, newChannel);
             getBot().getApi().moveClient(whoAmI.getId(), whoAmI.getChannelId());
             getBot().getApi().setClientChannelGroup(getConfig().getChannelGroup(), newChannel, client.getDatabaseId());
-            setStatus(true, "Channel '" + name + "' created");
+            webLog.info("Private Channel '" + name + "' created");
 
             if (!getConfig().getMessage().equals(""))
                 ApiUtil.poke(getBot().getApi(), clientId, getConfig().getMessage());
         } catch (Exception e) {
             log.error("Could not create channel", e);
-            setStatus(false, e.getMessage());
+            webLog.error("Could not create channel: " + e.getMessage());
         }
     }
 }

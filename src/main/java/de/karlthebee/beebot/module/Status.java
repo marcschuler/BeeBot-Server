@@ -1,4 +1,4 @@
-package de.karlthebee.beebot.module.modules;
+package de.karlthebee.beebot.module;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package de.karlthebee.beebot;
 
-import de.karlthebee.beebot.module.modules.Module;
+import de.karlthebee.beebot.module.Module;
 import de.karlthebee.beebot.ts3.BeeBot;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
