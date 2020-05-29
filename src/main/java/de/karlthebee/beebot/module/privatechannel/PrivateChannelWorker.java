@@ -86,7 +86,10 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
             ServerQueryInfo whoAmI = getBot().getApi().whoAmI();
             int newChannel = getBot().getApi().createChannel(name, properties);
             getBot().getApi().moveClient(clientId, newChannel);
-            getBot().getApi().moveClient(whoAmI.getId(), whoAmI.getChannelId());
+
+            //Move with non permanent channel
+            if (getConfig().getDeleteAfter() == 0)
+                getBot().getApi().moveClient(whoAmI.getId(), whoAmI.getChannelId());
             getBot().getApi().setClientChannelGroup(getConfig().getChannelGroup(), newChannel, client.getDatabaseId());
             webLog.info("Private Channel '" + name + "' created");
 
