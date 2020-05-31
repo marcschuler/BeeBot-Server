@@ -4,6 +4,9 @@
 ### Docker
 A Dockerfile is included. Run "mvn package" to compile the jar and execute the Dockerfile.
 
+### Port
+The default port is 8080 and can be changed with the ``server.port`` property
+
 ### MongoDB
 Use the environment variable to set the mongodb server uri
 

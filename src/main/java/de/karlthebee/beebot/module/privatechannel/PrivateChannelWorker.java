@@ -63,13 +63,15 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
         }
         var client = clientOpt.get();
         log.info("Creating private channel for {}", client.getNickname());
-        webLog.info("Creating private channel for '" + client.getNickname() + "'");
 
         var name = getConfig().getChannelName();
         var description = getConfig().getChannelDescription();
 
         name = DynReplacer.replaceAll(name, null, client);
         description = DynReplacer.replaceAll(description, null, client);
+
+
+        webLog.info("Creating private channel '" + name + "' for '" + client.getNickname() + "'");
 
         final Map<ChannelProperty, String> properties = new HashMap<>();
         properties.put(ChannelProperty.CPID, String.valueOf(getConfig().getParenChannel()));
