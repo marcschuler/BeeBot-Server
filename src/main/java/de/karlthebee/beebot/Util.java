@@ -25,40 +25,6 @@ public class Util {
         return validator.validate(o);
     }
 
-
-    public static Path getDataFolder() {
-        var folder = System.getProperty("beebot2.datafolder");
-        if (folder == null)
-            folder = "data";
-        return Paths.get(folder);
-    }
-
-    public static Path getServerFolder(String botId) {
-
-        var path = getDataFolder().resolve(botId);
-        if (!Files.exists(path)) {
-            try {
-                log.info("Creating server folder");
-                Files.createDirectories(path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return path;
-    }
-
-    public static Path getBotConfig(String botId) {
-        return getServerFolder(botId).resolve("beebot.config");
-    }
-
-    public static Path getWorkerConfig(BeeBot bot, Worker worker) {
-        return getServerFolder(bot.getId()).resolve(worker.getModule().getShortName()).resolve(worker.getId() + ".config");
-    }
-
-    public static Path getWorkerData(BeeBot bot, Worker worker, String id){
-        return getServerFolder(bot.getId()).resolve(worker.getModule().getShortName()).resolve(worker.getId() + "-" + id + ".data");
-    }
-
     public static String randomId() {
         return Integer.toHexString(new Random().nextInt());
     }

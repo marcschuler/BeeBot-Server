@@ -12,12 +12,14 @@ import java.util.function.Function;
  */
 public class DynReplacer {
 
+    //Changes channel data
     public static Map<String, Function<Channel, Object>> DYN_CHANNEL = Map.of(
             "channel_name", ChannelBase::getName,
             "channel_id", ChannelBase::getId
 
     );
 
+    //Changes client data
     public static Map<String, Function<Client, Object>> DYN_CLIENT = Map.of(
             "client_name", Client::getNickname,
             "client_id", Client::getId,
@@ -26,12 +28,20 @@ public class DynReplacer {
 
     );
 
+    //Changes general data
     public static Map<String, Function<String, Object>> DYN_STRING = Map.of(
             "\\n", (s) -> "\n",
             "\\", (s) -> "\t"
     );
 
-    public static <T> String replaceAll(String s, Channel channel, Client client) {
+    /**Replces DYN_STRINGS, channel and client in one step - convenient function
+     *
+     * @param s the input
+     * @param channel the channel
+     * @param client the client
+     * @return the formatted string
+     */
+    public static String replaceAll(String s, Channel channel, Client client) {
         s = replace(s, channel, DYN_CHANNEL);
         s = replace(s, client, DYN_CLIENT);
         s = replace(s, "", DYN_STRING);
@@ -39,8 +49,16 @@ public class DynReplacer {
         return s;
     }
 
+    /**
+     *
+     * @param s input string
+     * @param data the data to transform
+     * @param map a map converting the strings with T to data
+     * @param <T> the type of input
+     * @return the formatted string
+     */
     public static <T> String replace(String s, T data, Map<String, Function<T, Object>> map) {
-        if (data == null)
+        if (s==null || data == null)
             return s;
         for (var entry : map.entrySet()) {
             s = s.replace("%"+entry.getKey()+"%", entry.getValue().apply(data).toString());

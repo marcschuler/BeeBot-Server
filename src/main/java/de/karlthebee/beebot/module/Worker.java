@@ -22,9 +22,6 @@ public abstract class Worker<T> {
     @Getter
     private WorkerConfig<T> workerConfig;
     @Getter
-    @Setter
-    private Status status;
-    @Getter
     private BeeBot bot;
 
 
