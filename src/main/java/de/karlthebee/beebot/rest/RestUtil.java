@@ -2,6 +2,7 @@ package de.karlthebee.beebot.rest;
 
 import de.karlthebee.beebot.Registry;
 import de.karlthebee.beebot.Util;
+import de.karlthebee.beebot.module.Worker;
 import de.karlthebee.beebot.rest.data.Violation;
 import de.karlthebee.beebot.ts3.BeeBot;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +40,12 @@ public class RestUtil {
     }
 
     /**
-     *
      * @param bid the bot ID
      * @return the BeeBot
      * @throws ResponseStatusException if the bot couldn't be found
      */
-    public BeeBot botById(String bid) throws ResponseStatusException{
-        return Registry.getInstance().getBeeBotByUid(bid).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find BeeBot '" + bid+"'"));
+    public BeeBot botById(String bid) throws ResponseStatusException {
+        return Registry.getInstance().getBeeBotByUid(bid).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find BeeBot '" + bid + "'"));
     }
 }
+

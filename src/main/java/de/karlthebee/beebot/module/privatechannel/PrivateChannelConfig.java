@@ -12,7 +12,7 @@ public class PrivateChannelConfig {
     @WebValueDescriptor(WebValueDescriptorType.CHANNEL)
     private int channelId;
     @WebValueDescriptor(WebValueDescriptorType.CHANNEL)
-    private int parenChannel;
+    private int parentChannel;
     @WebValueDescriptor(WebValueDescriptorType.CHANNEL_GROUP)
     @Min(1)
     private int channelGroup;

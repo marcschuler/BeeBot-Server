@@ -1,10 +1,12 @@
 package de.karlthebee.beebot.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import de.karlthebee.beebot.Registry;
 import de.karlthebee.beebot.Util;
 import de.karlthebee.beebot.data.WorkerConfig;
 import de.karlthebee.beebot.dyn.WebValue;
 import de.karlthebee.beebot.dyn.WebValueDescriptor;
+import de.karlthebee.beebot.module.Worker;
 import de.karlthebee.beebot.repository.WorkerConfigRepository;
 import de.karlthebee.beebot.rest.data.Violation;
 import de.karlthebee.beebot.rest.data.WorkerData;
@@ -48,6 +50,12 @@ public class ModulesController extends RestUtil {
                 .collect(Collectors.toList());
     }
 
+    /**
+     *
+     * @param bid the bot id
+     * @param mid the module id
+     * @return the workerdata of the bot
+     */
     @GetMapping("beebot/{bid}/modules/{mid}")
     public WorkerData module(@PathVariable("bid") String bid, @PathVariable("mid")String mid){
         requireToken();
@@ -58,6 +66,48 @@ public class ModulesController extends RestUtil {
                 .findFirst()
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find worker"));
     }
+
+    /**
+     *
+     * @param bid the bot id
+     * @param mid the module id
+     * @return the config of the bot (anything)
+     */
+    @GetMapping("beebot/{bid}/modules/{mid}/config")
+    public Object moduleConfig(@PathVariable("bid") String bid, @PathVariable("mid")String mid){
+        requireToken();
+        var beebot = botById(bid);
+        return beebot.getWorkers().stream()
+                .filter(w -> w.getId().equals(mid))
+                .map(Worker::getConfig)
+                .findFirst()
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find worker"));
+    }
+
+    /**
+     *
+     * @param bid the bot id
+     * @param mid the module id
+     * @return the config of the bot (anything)
+     */
+    @PutMapping("beebot/{bid}/modules/{mid}/config")
+    public Object moduleConfigChange(@PathVariable("bid") String bid, @PathVariable("mid")String mid,HttpEntity<String> httpEntity) throws JsonProcessingException {
+        requireToken();
+        var beebot = botById(bid);
+        Worker<?> worker = beebot.workerById(mid)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find worker"));
+
+        //cast entity to config class
+        var config = Util.mapper().readValue(httpEntity.getBody(), worker.getModule().getConfigClass());
+        var vio = getViolations(config);
+        log.info("Config " + config.toString() + " of " + worker.getModule().getConfigClass().toString() + " has vilations " + vio.toString());
+        if (vio.size() > 0)
+            return vio;
+
+        worker.setConfigUnsafe(config);
+        return vio;
+    }
+
 
     @PutMapping("beebot/{bid}/modules/{srtname}")
     public List<Violation> create(@PathVariable("bid") String bid, @PathVariable("srtname") String srtname, HttpEntity<String> httpEntity) throws IOException, IllegalAccessException, InstantiationException {

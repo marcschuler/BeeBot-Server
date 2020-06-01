@@ -4,6 +4,7 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
+import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import de.karlthebee.beebot.Util;
@@ -148,7 +149,7 @@ public class BeeBot implements TS3EventInterface {
                 api.setNickname(getConfig().getNickname());
             } catch (Exception e) {
                 webLog.warning("Could not set nickname (this is an common error");
-                log.warn("Could not set nickname", e);
+                log.warn("Could not set nickname: " + e.getMessage());
             }
             api.registerAllEvents();
             api.addTS3Listeners(this);
@@ -195,7 +196,16 @@ public class BeeBot implements TS3EventInterface {
      * @return true if the bot is online (no guarantee, can change at any moment)
      */
     public boolean isOnline() {
-        return query != null && api != null && query.isConnected();
+        //  query.isConnected(); was used instead of whoami but
+        // more often than not it showed "offline" even if we were connected
+        // and used the connection. so whoami is used instead.
+        // Its a bit slower but should be better in any other way
+        try {
+            return query != null && api != null && api.whoAmI() != null;
+        } catch (TS3CommandFailedException e) {
+            log.warn("Probably not online", e);
+            return false;
+        }
     }
 
     /**

@@ -1,0 +1,29 @@
+image maven:latest
+
+cache:
+  paths:
+    - .m2/repository
+
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  script:
+    - mvn test
+    - echo -n "Code coverage is "; grep -m1 -Po '(?<=<td class="ctr2">).*?(?=</td>)' target/site/jacoco-ut/index.html | head -n1
+  artifacts:
+    paths:
+      - target/site/jacoco-ut
+
+build:
+  stage: deploy
+  only:
+    - master
+  script:
+    - mvn package
+    - cp target/*.jar .
+  artifacts:
+    paths:
+      - "*.jar"

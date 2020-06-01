@@ -26,11 +26,11 @@ public class AdminController {
 
     static {
         boolean docker = false;
-        if (Files.exists(DOCKER_PATH)) //-> Probably Windows
+        if (Files.exists(DOCKER_PATH)) //-> Probably Linux
             try { //see https://stackoverflow.com/questions/52580008/how-does-java-application-know-it-is-running-within-a-docker-container/52581380
                 docker = (Files.readString(DOCKER_PATH).contains("/docker"));
             } catch (IOException e) {
-                log.error("Could not open cgroup file", e);
+                log.warn("Could not open cgroup file", e);
             }
 
         DOCKER = docker;

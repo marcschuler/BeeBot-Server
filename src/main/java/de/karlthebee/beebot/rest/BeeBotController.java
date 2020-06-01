@@ -59,6 +59,7 @@ public class BeeBotController extends RestUtil {
         return new ArrayList<>();
     }
 
+
     @DeleteMapping("{bid}")
     public void remove(@PathVariable("bid") String bid) {
         requireToken();

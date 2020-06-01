@@ -66,6 +66,14 @@ public abstract class Worker<T> {
      */
     abstract public void save();
 
+    public void setConfigUnsafe(Object config) throws ClassCastException{
+        try {
+           setConfig((T) config);
+        }catch(ClassCastException | IOException e){
+            throw new IllegalStateException("Could not determine class type",e);
+        }
+    }
+
     public void setConfig(T config) throws IOException {
         var errors = Util.validate(config);
         if (errors.size() > 0) {

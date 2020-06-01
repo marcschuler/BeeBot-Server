@@ -49,6 +49,9 @@ public class ApiUtil {
      * @param text     the text
      */
     public static void poke(TS3Api api, int clientId, String text) throws TS3CommandFailedException {
+        text = text.strip(); //Remove unnessesary text
+        if (text.equals("")) //no need so send empty text
+            return;
         String[] pokes = text.split("\n");
         for (var poke : pokes) {
             var subpokes = split(poke);

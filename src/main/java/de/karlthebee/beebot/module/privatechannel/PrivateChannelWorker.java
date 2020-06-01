@@ -66,28 +66,25 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
 
         var name = getConfig().getChannelName();
         var description = getConfig().getChannelDescription();
-
         name = DynReplacer.replaceAll(name, null, client);
         description = DynReplacer.replaceAll(description, null, client);
 
+        boolean isPermanent = getConfig().getDeleteAfter() == 0;
 
         webLog.info("Creating private channel '" + name + "' for '" + client.getNickname() + "'");
-
         final Map<ChannelProperty, String> properties = new HashMap<>();
-        properties.put(ChannelProperty.CPID, String.valueOf(getConfig().getParenChannel()));
-
-        if (getConfig().getDeleteAfter() > 0) {
+        properties.put(ChannelProperty.CPID, String.valueOf(getConfig().getParentChannel()));
+        if (!isPermanent) {
             properties.put(ChannelProperty.CHANNEL_FLAG_TEMPORARY, "1");
             properties.put(ChannelProperty.CHANNEL_DELETE_DELAY, String.valueOf(getConfig().getDeleteAfter()));
         } else {
             properties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "1");
         }
-
         properties.put(ChannelProperty.CHANNEL_DESCRIPTION, description);
 
         try {
             ServerQueryInfo whoAmI = getBot().getApi().whoAmI();
-            int newChannel = 0;
+            int newChannel;
             try {
                 newChannel = getBot().getApi().createChannel(name, properties);
             } catch (TS3CommandFailedException e) {
@@ -98,13 +95,12 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
             getBot().getApi().moveClient(clientId, newChannel);
 
             //Move with non permanent channel
-            if (getConfig().getDeleteAfter() == 0)
+            if (!isPermanent)
                 getBot().getApi().moveClient(whoAmI.getId(), whoAmI.getChannelId());
             getBot().getApi().setClientChannelGroup(getConfig().getChannelGroup(), newChannel, client.getDatabaseId());
             webLog.info("Private Channel '" + name + "' created");
 
-            if (!getConfig().getMessage().equals(""))
-                ApiUtil.poke(getBot().getApi(), clientId, getConfig().getMessage());
+            ApiUtil.poke(getBot().getApi(), clientId, getConfig().getMessage());
         } catch (Exception e) {
             log.error("Could not create channel", e);
             webLog.error("Could not create channel: " + e.getMessage());
