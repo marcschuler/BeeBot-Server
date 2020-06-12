@@ -17,6 +17,9 @@ Or set the variables independently
     spring.data.mongodb.database=<database>
     spring.data.mongodb.username=<username>
     spring.data.mongodb.password=<password>
+    
+## Client
+The client is available at https://beebot.karlthebee.de
 
 ## Login
 At first startup the server will generate a (SECRET) login token. The token will be saved on file "token.txt" and on
