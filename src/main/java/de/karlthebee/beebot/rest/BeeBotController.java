@@ -10,7 +10,9 @@ import de.karlthebee.beebot.ts3.BeeBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,25 @@ public class BeeBotController extends RestUtil {
     public ServerState beebot(@PathVariable("bid") String bid) {
         requireToken();
         return botById(bid).state();
+    }
+
+    @GetMapping("{bid}/config")
+    public TeamspeakConfig beebotConfig(@PathVariable("bid") String bid) {
+        requireToken();
+        return botById(bid).getConfig();
+    }
+
+    @PutMapping("{bid}/config")
+    public List<Violation> beebotConfig(@PathVariable("bid") String bid, @RequestBody TeamspeakConfig teamspeakConfig) {
+        requireToken();
+        var bot = botById(bid);
+        if (this.getViolations(teamspeakConfig).size() > 0)
+            return this.getViolations(teamspeakConfig);
+        if (!teamspeakConfig.getId().equals(bot.getConfig().getId()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Could not change bot id");
+
+        bot.changeConfig(teamspeakConfig);
+        return new ArrayList<>();
     }
 
 

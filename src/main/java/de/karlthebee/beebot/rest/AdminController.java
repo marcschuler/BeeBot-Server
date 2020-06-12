@@ -37,7 +37,7 @@ public class AdminController {
 
         String version = System.getProperty("beebot.version");
         if (version == null) {
-            log.warn("Could not load beebot version. Are you running ");
+            log.warn("Could not load beebot version. Are you running in test mode?");
             version = "(testing)";
         }
         VERSION = version;

@@ -163,6 +163,24 @@ public class BeeBot implements TS3EventInterface {
         }
     }
 
+
+    /**
+     * Changes the config of the BOT.
+     * WARNING: This function does NOT check if the ID is valid
+     * WARNING: This function will NOT save the config to the database
+     * @param teamspeakConfig
+     */
+    public void changeConfig(TeamspeakConfig teamspeakConfig) {
+        log.info("Changing config. Shutting down query");
+        try {
+            query.exit();//Stop query
+        } catch (Exception e) {
+            log.error("Query exception: " + e.getMessage());
+        }
+        this.config = teamspeakConfig;
+        initApi();
+    }
+
     /**
      * Closes an BeeBot and all its modules
      */
@@ -179,6 +197,8 @@ public class BeeBot implements TS3EventInterface {
         query = null;
         api = null;
     }
+
+
 
     /**
      * @return the current state
