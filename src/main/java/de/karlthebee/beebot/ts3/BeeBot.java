@@ -109,13 +109,13 @@ public class BeeBot implements TS3EventInterface {
             final TS3Config config = new TS3Config();
             config.setHost(getConfig().getHost());
             config.setCommandTimeout(4000);
+            config.setEnableCommunicationsLogging(true);
             config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
             config.setConnectionHandler(new ConnectionHandler() {
                 @Override
-                public void onConnect(TS3Query ts3Query) {
+                public void onConnect(TS3Api ts3Api) {
                     log.info("Reconnected to server");
-                    query = ts3Query;
-                    findApi();
+                    findApi(ts3Api);
                 }
 
                 @Override
@@ -140,9 +140,9 @@ public class BeeBot implements TS3EventInterface {
         }
     }
 
-    private void findApi() {
+    private void findApi(TS3Api ts3api) {
         try {
-            var api = query.getApi();
+            var api = ts3api!=null?ts3api:query.getApi();
             log.info("Login... " + getConfig().getUsername() + "@" + getConfig().getPassword());
             webLog.info("Loggin in with username '" + getConfig().getUsername() + "' and password");
             api.login(getConfig().getUsername(), getConfig().getPassword());

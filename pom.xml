@@ -18,6 +18,13 @@
         <java.version>11</java.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -57,10 +64,16 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.theholywaffle</groupId>
-            <artifactId>teamspeak3-api</artifactId>
-            <version>1.2.0</version>
+            <groupId>com.github.TheHolyWaffle</groupId>
+            <artifactId>TeamSpeak-3-Java-API</artifactId>
+            <version>68807a93de</version>
         </dependency>
+
+        <!-- Using lastest version from github  <dependency>
+              <groupId>com.github.theholywaffle</groupId>
+              <artifactId>teamspeak3-api</artifactId>
+              <version>1.2.0</version>
+          </dependency> -->
 
 
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->

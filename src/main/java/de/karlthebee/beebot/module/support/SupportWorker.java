@@ -162,4 +162,5 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
                 .filter(c -> Util.contains(c.getServerGroups(), getConfig().getSupportGroup()))
                 .collect(Collectors.toList());
     }
+
 }
