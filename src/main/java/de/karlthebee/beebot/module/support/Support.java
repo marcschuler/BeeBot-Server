@@ -3,7 +3,7 @@ package de.karlthebee.beebot.module.support;
 import de.karlthebee.beebot.module.Module;
 import de.karlthebee.beebot.module.Worker;
 
-public class SupportModule extends Module {
+public class Support extends Module {
     @Override
     public Class<?> getConfigClass() {
         return SupportConfig.class;

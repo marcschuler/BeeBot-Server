@@ -1,4 +1,4 @@
-package de.karlthebee.beebot.rest.data;
+package de.karlthebee.beebot.rest.dto;
 
 import de.karlthebee.beebot.dyn.WebLog;
 import lombok.AllArgsConstructor;

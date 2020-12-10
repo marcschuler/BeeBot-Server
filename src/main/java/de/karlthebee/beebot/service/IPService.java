@@ -12,4 +12,27 @@ public class IPService {
             .maximumSize(1000)
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build();
+
+    /**
+     * See https://attacomsian.com/blog/how-to-convert-country-code-to-emoji-in-java
+     * @param code the country code ("DE")
+     * @return an unicode flag
+     */
+    public String countryCodeToEmoji(String code){
+        // offset between uppercase ascii and regional indicator symbols
+        int OFFSET = 127397;
+        if (code==null || code.length()!=2)
+            return "";
+        code = code.toUpperCase();
+        if (code.equals("UK"))
+            code = "GB";
+
+        var builder = new StringBuilder();
+        for (int i = 0; i < code.length(); i++) {
+            builder.appendCodePoint(code.charAt(i) + OFFSET);
+        }
+
+        return builder.toString();
+
+    }
 }

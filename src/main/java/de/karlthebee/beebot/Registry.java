@@ -17,9 +17,13 @@ import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Collects runtime data like all bots and a list of all modules
+ */
 @Getter
 @Slf4j
 public class Registry {
+    //The file containing the admin token TODO implement a user system with permissions?
     private static final Path TOKEN_FILE = Paths.get("token.txt");
     private static final Registry registry = new Registry();
 
@@ -62,11 +66,19 @@ public class Registry {
         log.info("YOUR ADMIN TOKEN IS '" + this.adminToken + "'");
     }
 
+    /**
+     * Loads all subtypes of Module
+     */
     private void initModules() {
         modules.clear();
         new Reflections("de.karlthebee.beebot.module").getSubTypesOf(Module.class).forEach(m -> {
             try {
-                modules.add(m.newInstance());
+                var module = m.newInstance();
+                if (getModuleByShortName(module.getShortName()).isPresent()) {
+                    log.error("Found two modules with same short name! '" + module.getShortName() + "' - second entry is ignored");
+                    return;
+                }
+                modules.add(module);
             } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -74,11 +86,22 @@ public class Registry {
 
     }
 
+    /**
+     * Gets a module by its short name
+     *
+     * @param name the short name, see module definition
+     * @return the module if available
+     */
     public Optional<Module> getModuleByShortName(String name) {
         return this.modules.stream().filter(m -> m.getShortName().equalsIgnoreCase(name))
                 .findFirst();
     }
 
+    /**
+     * Get a BeeBot instance from uid
+     * @param uid the uid, see beebot definition
+     * @return the beebot if avaioable
+     */
     public Optional<BeeBot> getBeeBotByUid(String uid) {
         return getBots().stream().filter(b -> b.getId().equalsIgnoreCase(uid)).findFirst();
     }

@@ -27,6 +27,9 @@ import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * The BeeBot containing all logic
+ */
 @Getter
 @Slf4j
 public class BeeBot implements TS3EventInterface {
@@ -148,7 +151,7 @@ public class BeeBot implements TS3EventInterface {
             try {
                 api.setNickname(getConfig().getNickname());
             } catch (Exception e) {
-                webLog.warning("Could not set nickname (this is an common error");
+                webLog.warning("Could not set nickname (this is an common value)");
                 log.warn("Could not set nickname: " + e.getMessage());
             }
             api.registerAllEvents();
@@ -282,6 +285,11 @@ public class BeeBot implements TS3EventInterface {
         worker.start();
     }
 
+    /**
+     *
+     * @param wid
+     * @return the worker if existing
+     */
     public Optional<Worker<?>> workerById(String wid) {
         return getWorkers().stream()
                 .filter(w -> w.getId().equals(wid))

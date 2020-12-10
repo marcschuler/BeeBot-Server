@@ -24,12 +24,11 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
 
     @Override
     public Module getModule() {
-        return null;
+        return new Support();
     }
 
     @Override
     public void start() {
-        getBot().getApi().getClients().forEach(client -> notifyUser(client.getId(), client.getChannelId()));
     }
 
     @Override
@@ -39,7 +38,7 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
 
     @Override
     public void stop() {
-
+        getBot().getApi().removeTS3Listeners(this);
     }
 
     @Override
@@ -137,7 +136,8 @@ public class SupportWorker extends Worker<SupportConfig> implements TS3EventInte
             // Find and send message to all supporters
             var supporters = getSupporters();
             for (var supporter : supporters) {
-                ApiUtil.poke(getBot().getApi(), supporter.getId(), supporterMessage);
+                if (!supporter.isServerQueryClient()) //ignore queries, can't poke anyway
+                    ApiUtil.poke(getBot().getApi(), supporter.getId(), supporterMessage);
             }
         } catch (TS3CommandFailedException e) {
             log.warn("Could not poke admins", e);

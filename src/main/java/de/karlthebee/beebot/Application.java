@@ -22,7 +22,7 @@ public class Application implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        Registry.getInstance();
+        Registry.getInstance(); //init instance
         //Start all BeeBots
         configRepository.findAll()
                 .parallelStream()

@@ -5,7 +5,7 @@ import de.karlthebee.beebot.data.ServerState;
 import de.karlthebee.beebot.data.TeamspeakConfig;
 import de.karlthebee.beebot.dyn.WebLog;
 import de.karlthebee.beebot.repository.ConfigRepository;
-import de.karlthebee.beebot.rest.data.Violation;
+import de.karlthebee.beebot.rest.dto.Violation;
 import de.karlthebee.beebot.ts3.BeeBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

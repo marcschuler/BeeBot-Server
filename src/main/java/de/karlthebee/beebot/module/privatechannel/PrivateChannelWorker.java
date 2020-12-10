@@ -53,10 +53,15 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
     }
 
 
+    /**
+     * Creates and channel for the given client in an channel
+     * @param clientId the client id
+     * @param channelId the channel id
+     */
     public void createChannel(int clientId, int channelId) {
-        if (channelId != getConfig().getChannelId())
+        if (channelId != getConfig().getChannelId()) //check channel
             return;
-        var clientOpt = ApiUtil.getClientById(getBot().getApi(), clientId);
+        var clientOpt = ApiUtil.getClientById(getBot().getApi(), clientId); //get client
         if (clientOpt.isEmpty()) {
             log.warn("Could not find client {}", clientId);
             return;
@@ -69,7 +74,7 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
         name = DynReplacer.replaceAll(name, null, client);
         description = DynReplacer.replaceAll(description, null, client);
 
-        boolean isPermanent = getConfig().getDeleteAfter() == 0;
+        boolean isPermanent = getConfig().getDeleteAfter() == 0; //permanent channel or delete after X seconds?
 
         webLog.info("Creating private channel '" + name + "' for '" + client.getNickname() + "'");
         final Map<ChannelProperty, String> properties = new HashMap<>();
@@ -83,16 +88,16 @@ public class PrivateChannelWorker extends Worker<PrivateChannelConfig> implement
         properties.put(ChannelProperty.CHANNEL_DESCRIPTION, description);
 
         try {
-            ServerQueryInfo whoAmI = getBot().getApi().whoAmI();
+            ServerQueryInfo whoAmI = getBot().getApi().whoAmI(); //get bot info
             int newChannel;
             try {
-                newChannel = getBot().getApi().createChannel(name, properties);
+                newChannel = getBot().getApi().createChannel(name, properties); //create channel
             } catch (TS3CommandFailedException e) {
                 log.warn("Could not create channel", e);
                 webLog.warning("Could not create channel. Doesn't BeeBot have permission or does the channel already exist? " + e.getMessage());
                 return;
             }
-            getBot().getApi().moveClient(clientId, newChannel);
+            getBot().getApi().moveClient(clientId, newChannel); //move the client asap - permissions follow
 
             //Move with non permanent channel
             if (!isPermanent)

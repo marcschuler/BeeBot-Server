@@ -8,6 +8,10 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Teamspeak 3 only provides basic functionality
+ * The utility class adds often used convvenience functions
+ */
 public class ApiUtil {
 
     /**

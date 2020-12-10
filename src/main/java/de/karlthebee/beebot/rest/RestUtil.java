@@ -2,8 +2,7 @@ package de.karlthebee.beebot.rest;
 
 import de.karlthebee.beebot.Registry;
 import de.karlthebee.beebot.Util;
-import de.karlthebee.beebot.module.Worker;
-import de.karlthebee.beebot.rest.data.Violation;
+import de.karlthebee.beebot.rest.dto.Violation;
 import de.karlthebee.beebot.ts3.BeeBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

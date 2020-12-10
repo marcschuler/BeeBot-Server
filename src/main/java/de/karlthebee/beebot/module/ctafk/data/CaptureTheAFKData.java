@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Additional database data
+ */
 @Data
 @Document
 public class CaptureTheAFKData {

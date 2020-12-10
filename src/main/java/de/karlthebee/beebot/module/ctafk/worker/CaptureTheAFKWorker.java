@@ -20,12 +20,16 @@ import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * CTAFK worker
+ */
 @Slf4j
 public class CaptureTheAFKWorker extends Worker<CaptureTheAFKConfig> {
 
     @Autowired
     private CaptureTheAFKDataRepository captureTheAFKDataRepository;
 
+    //Use scheduler to calculate and set data on a regular basis
     private ScheduledFuture<?> future;
     private ScheduledFuture<?> futureDescription;
 
@@ -92,8 +96,11 @@ public class CaptureTheAFKWorker extends Worker<CaptureTheAFKConfig> {
 
     }
 
+    /**
+     * Updates the channel
+     */
     private void updateChannel() {
-        if (!getBot().isOnline())
+        if (!getBot().isOnline()) //bot must be online
             return;
 
         StringBuilder description = new StringBuilder();
@@ -116,6 +123,7 @@ public class CaptureTheAFKWorker extends Worker<CaptureTheAFKConfig> {
             getBot().getApi().editChannel(getConfig().getChannelId(), ChannelProperty.CHANNEL_DESCRIPTION, description.toString());
         } catch (TS3CommandFailedException e) {
             e.printStackTrace();
+            getWebLog().error("Could not update channel "+getConfig().getChannelId()+" description: " + e.getMessage());
         }
     }
 
@@ -130,7 +138,7 @@ public class CaptureTheAFKWorker extends Worker<CaptureTheAFKConfig> {
         try {
             clients = getBot().getApi().getClients();
         } catch (TS3CommandFailedException e) {
-            log.warn("Could not fetch client list", e);
+            log.warn("Could not fetch client list. Is the server offline?", e);
             return;
         }
 

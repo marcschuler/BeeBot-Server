@@ -9,6 +9,10 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * Config for a worker including all IDs, the (generic) data and dates
+ * @param <T> the config data class
+ */
 @Data
 public class WorkerConfig<T> {
     @Id

@@ -8,6 +8,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.UUID;
 
+/**
+ * The config for the server including host, username and password
+ */
 @Data
 public class TeamspeakConfig {
     @Id

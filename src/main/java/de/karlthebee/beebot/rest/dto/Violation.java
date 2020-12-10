@@ -1,4 +1,4 @@
-package de.karlthebee.beebot.rest.data;
+package de.karlthebee.beebot.rest.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChannelReference {
-    private int id;
-    private String name;
+public class Violation {
+    private String path;
+    private String violation;
 }

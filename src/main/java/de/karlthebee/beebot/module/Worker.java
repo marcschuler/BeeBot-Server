@@ -12,7 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.util.Objects;
 
+/**
+ * The Worker. One instance per activated module per bot
+ * @param <T> the config class
+ */
 @Slf4j
 public abstract class Worker<T> {
 
@@ -21,6 +26,7 @@ public abstract class Worker<T> {
 
     @Getter
     private WorkerConfig<T> workerConfig;
+    //The Bot - guaranteed to be not null on runtime
     @Getter
     private BeeBot bot;
 
@@ -34,12 +40,23 @@ public abstract class Worker<T> {
      */
     public abstract Module getModule();
 
+    /**
+     * Sets the BeeBot instance. CAN ONLY BE SET ONCE
+     * @param bot the bot instance
+     * @throws IllegalStateException when the bot is already set
+     */
     public void setBot(BeeBot bot) {
         if (this.bot != null)
             throw new IllegalStateException("BeeBot reference already set. No overwrite allowed");
-        this.bot = bot;
+        this.bot = Objects.requireNonNull(bot);
     }
 
+    /**
+     * Sets a worker config on initialise. ONLY CALL ONCE
+     * @param workerConfig
+     * @throws IllegalStateException
+     * @throws NullPointerException
+     */
     public void setWorkerConfig(WorkerConfig<T> workerConfig) throws IllegalStateException, NullPointerException {
         if (this.workerConfig != null)
             throw new IllegalStateException("Worker is already initialsed");
@@ -66,6 +83,11 @@ public abstract class Worker<T> {
      */
     abstract public void save();
 
+    /**
+     * Sets the config without using generics
+     * @param config the config
+     * @throws ClassCastException when then config type didn't match the required ones
+     */
     public void setConfigUnsafe(Object config) throws ClassCastException{
         try {
            setConfig((T) config);
@@ -74,6 +96,11 @@ public abstract class Worker<T> {
         }
     }
 
+    /**
+     * Sets the config after validation and saves it to database
+     * @param config
+     * @throws IOException
+     */
     public void setConfig(T config) throws IOException {
         var errors = Util.validate(config);
         if (errors.size() > 0) {
