@@ -63,17 +63,19 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- LATEST MASTER FROM GITHUB: TOO EXPERIMENTAL
         <dependency>
             <groupId>com.github.TheHolyWaffle</groupId>
             <artifactId>TeamSpeak-3-Java-API</artifactId>
-            <version>7bfa433cd7</version><!--68807a93de-->
-        </dependency>
+            <version>7bfa433cd7</version>68807a93de
+        </dependency>-->
 
-        <!-- Using lastest version from github  <dependency>
-              <groupId>com.github.theholywaffle</groupId>
-              <artifactId>teamspeak3-api</artifactId>
-              <version>1.2.0</version>
-          </dependency> -->
+        <!-- Version 1.2 with disconnect bug -->
+        <dependency>
+            <groupId>com.github.theholywaffle</groupId>
+            <artifactId>teamspeak3-api</artifactId>
+            <version>1.2.0</version>
+        </dependency>
 
 
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
