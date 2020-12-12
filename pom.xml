@@ -66,7 +66,7 @@
         <dependency>
             <groupId>com.github.TheHolyWaffle</groupId>
             <artifactId>TeamSpeak-3-Java-API</artifactId>
-            <version>68807a93de</version>
+            <version>7bfa433cd7</version><!--68807a93de-->
         </dependency>
 
         <!-- Using lastest version from github  <dependency>

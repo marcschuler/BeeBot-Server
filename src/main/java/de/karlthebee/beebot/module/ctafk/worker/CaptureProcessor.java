@@ -17,23 +17,25 @@ public class CaptureProcessor {
      * @return a map of UIDs and times (in seconds) accumulated
      */
     public static Map<String, Long> getTimesForUsers(CaptureTheAFKData data, int days) {
+        if (days < 0)
+            throw new IllegalArgumentException("Day must be >=0");
         LocalDate today = LocalDate.now();
         LocalDate firstCollectedDay = today.minusDays(days);
 
         Map<String, Long> userMap = new HashMap<>();
         for (var day : data.getDays()) {
-            for (var entry : day.getAfkdays().entrySet()) {
-                var user = entry.getKey();
-                var time = entry.getValue();
-                userMap.putIfAbsent(user, 0L);
-                userMap.put(user, userMap.get(user) + time);
-            }
+            if (!day.getDay().isBefore(firstCollectedDay))
+                for (var entry : day.getAfkdays().entrySet()) {
+                    var user = entry.getKey();
+                    var time = entry.getValue();
+                    userMap.putIfAbsent(user, 0L);
+                    userMap.put(user, userMap.get(user) + time);
+                }
         }
         return userMap;
     }
 
     /**
-     *
      * @param data the afk data
      * @param days the last days (see getTimesForUsers(...))
      * @return a list of all capturedata, sorted by time
@@ -50,7 +52,7 @@ public class CaptureProcessor {
             capture.uid = entry.getKey();
             capture.time = entry.getValue();
             capture.percentage = (float) capture.time / timesSum;
-            capture.nickname = data.getKnownNames().getOrDefault(capture.uid,capture.uid);
+            capture.nickname = data.getKnownNames().getOrDefault(capture.uid, capture.uid);
         }
 
         Collections.sort(captureData);
@@ -61,7 +63,7 @@ public class CaptureProcessor {
 
     @Data
     static
-    class CaptureData implements Comparable<CaptureData>{
+    class CaptureData implements Comparable<CaptureData> {
         private String nickname;
         private String uid;
         private long time;
@@ -70,7 +72,7 @@ public class CaptureProcessor {
 
         @Override
         public int compareTo(CaptureData captureData) {
-            return Long.compare(getTime(),captureData.getTime());
+            return Long.compare(getTime(), captureData.getTime());
         }
     }
 

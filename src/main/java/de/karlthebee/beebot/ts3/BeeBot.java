@@ -5,6 +5,7 @@ import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
+import com.github.theholywaffle.teamspeak3.api.exception.TS3QueryShutDownException;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import de.karlthebee.beebot.Util;
@@ -114,7 +115,7 @@ public class BeeBot implements TS3EventInterface {
             config.setConnectionHandler(new ConnectionHandler() {
                 @Override
                 public void onConnect(TS3Api ts3Api) {
-                    log.info("Reconnected to server");
+                    log.info("(Re)connected to server");
                     findApi(ts3Api);
                 }
 
@@ -142,7 +143,7 @@ public class BeeBot implements TS3EventInterface {
 
     private void findApi(TS3Api ts3api) {
         try {
-            var api = ts3api!=null?ts3api:query.getApi();
+            var api = ts3api != null ? ts3api : query.getApi();
             log.info("Login... " + getConfig().getUsername() + "@" + getConfig().getPassword());
             webLog.info("Loggin in with username '" + getConfig().getUsername() + "' and password");
             api.login(getConfig().getUsername(), getConfig().getPassword());
@@ -171,6 +172,7 @@ public class BeeBot implements TS3EventInterface {
      * Changes the config of the BOT.
      * WARNING: This function does NOT check if the ID is valid
      * WARNING: This function will NOT save the config to the database
+     *
      * @param teamspeakConfig
      */
     public void changeConfig(TeamspeakConfig teamspeakConfig) {
@@ -202,7 +204,6 @@ public class BeeBot implements TS3EventInterface {
     }
 
 
-
     /**
      * @return the current state
      */
@@ -216,6 +217,9 @@ public class BeeBot implements TS3EventInterface {
     }
 
     /**
+     * Returns if the bot is most likely online (please use sparly because we have to
+     * send an request to the ts3 server)
+     *
      * @return true if the bot is online (no guarantee, can change at any moment)
      */
     public boolean isOnline() {
@@ -224,8 +228,8 @@ public class BeeBot implements TS3EventInterface {
         // and used the connection. so whoami is used instead.
         // Its a bit slower but should be better in any other way
         try {
-            return query != null && api != null && api.whoAmI() != null;
-        } catch (TS3CommandFailedException e) {
+            return query != null && query.isConnected() && api != null && api.whoAmI() != null;
+        } catch (TS3CommandFailedException | TS3QueryShutDownException e) {
             log.warn("Probably not online", e);
             return false;
         }
@@ -286,7 +290,6 @@ public class BeeBot implements TS3EventInterface {
     }
 
     /**
-     *
      * @param wid
      * @return the worker if existing
      */
