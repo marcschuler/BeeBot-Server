@@ -1,5 +1,5 @@
 # BeeBot
-
+![Build](https://github.com/marcschuler/bee-teamspeak-bot-server/workflows/Maven%20Build/badge.svg)
 ## Setup
 ### Docker
 A Dockerfile is included. Run "mvn package" to compile the jar and execute the Dockerfile.
