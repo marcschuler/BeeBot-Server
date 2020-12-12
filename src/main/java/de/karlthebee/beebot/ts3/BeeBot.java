@@ -113,10 +113,19 @@ public class BeeBot implements TS3EventInterface {
             config.setEnableCommunicationsLogging(true);
             config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
             config.setConnectionHandler(new ConnectionHandler() {
-                @Override
+               /*
+               Function used on newer versions of ts3api
+               @Override
                 public void onConnect(TS3Api ts3Api) {
                     log.info("(Re)connected to server");
                     findApi(ts3Api);
+                }*/
+
+                @Override
+                public void onConnect(TS3Query ts3Query) {
+                    log.info("(Re)connected to server");
+                    BeeBot.this.query = ts3Query;
+                    findApi(ts3Query.getApi());
                 }
 
                 @Override
